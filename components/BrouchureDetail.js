@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, Text, Button } from 'react-native';
+import { View, Text, Button, StyleSheet } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 
 function BrochureDetail({ route }) {
   const { id } = route.params;
 
-  // Örnek PDF URL'si (Gerçek uygulamada bu URL'yi veri tabanından veya API'den alabilirsiniz)
+  // Broşür verisini ID'ye göre alıyoruz
   const brochureData = {
     1: { title: 'Teknosa Kampanya', pdfUrl: 'https://www.example.com/teknosa_kampanya.pdf' },
     2: { title: 'MediaMarkt İndirim', pdfUrl: 'https://www.example.com/mediamarkt_indirim.pdf' },

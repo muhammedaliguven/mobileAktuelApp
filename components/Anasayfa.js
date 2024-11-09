@@ -25,15 +25,15 @@ const exampleBrands = {
 const exampleBrochures = {
   1: [
     { id: 1, title: 'Teknosa Kampanya' },
-    { id: 2, title: 'MediaMarkt İndirim' },
-  ],
-  2: [
-    { id: 3, title: 'LC Waikiki Kış Sezonu' },
-    { id: 4, title: 'Mavi Yaz Sezonu' },
+    { id: 2, title: 'Teknosa Kampanya2' },
   ],
   3: [
+    { id: 3, title: 'LC Waikiki Kış Sezonu' },
+    { id: 4, title: 'LC Waikiki Kış Sezonu2' },
+  ],
+  5: [
     { id: 5, title: 'IKEA Ev Dekorasyonu' },
-    { id: 6, title: 'Koçtaş Bahçe Ürünleri' },
+    { id: 6, title: 'IKEA Ev Dekorasyonu2' },
   ],
 };
 
@@ -56,6 +56,12 @@ function Anasayfa({ navigation }) {
       setBrochures(exampleBrochures[selectedBrand] || []);
     }
   }, [selectedBrand]);
+
+  // Markaya tıklanınca BrochuresList'e yönlendir
+  const handleBrandSelect = (brandId) => {
+    setSelectedBrand(brandId);
+    navigation.navigate('BrochuresList', { brochures: exampleBrochures[brandId] });
+  };
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
@@ -82,7 +88,7 @@ function Anasayfa({ navigation }) {
         {brands.map((brand) => (
           <TouchableOpacity
             key={brand.id}
-            onPress={() => setSelectedBrand(brand.id)}
+            onPress={() => handleBrandSelect(brand.id)} // Marka seçildiğinde BrochuresList'e yönlendir
             style={{
               padding: 10,
               backgroundColor: selectedBrand === brand.id ? 'green' : 'lightgray',
@@ -91,24 +97,6 @@ function Anasayfa({ navigation }) {
             }}
           >
             <Text>{brand.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* Seçili markaya ait broşürler */}
-      <ScrollView>
-        {brochures.map((brochure) => (
-          <TouchableOpacity
-            key={brochure.id}
-            onPress={() => navigation.navigate('BrochuresList', { brochures: brochures })}
-            style={{
-              padding: 10,
-              backgroundColor: 'orange',
-              marginBottom: 10,
-              borderRadius: 5,
-            }}
-          >
-            <Text>{brochure.title}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
