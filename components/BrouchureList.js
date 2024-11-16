@@ -14,7 +14,7 @@ function BrochuresList({ route, navigation }) {
             onPress={() => navigation.navigate('BrochureDetail', { id: brochure.id })}
             style={styles.brochureItem}
           >
-            <Text>{brochure.title}</Text>
+            <Text>{brochure.brochureImage}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>

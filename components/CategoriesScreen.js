@@ -17,7 +17,7 @@ class CategoriesScreen extends Component {
 
   fetchCategories = async () => {
     try {
-      const response = await fetch('http://172.20.10.8:8080/api/category/getAll');
+      const response = await fetch('http://192.168.1.74:8080/api/category/getAll');
       const data = await response.json();
       this.setState({ categories: data, isLoading: false });
     } catch (error) {
@@ -28,7 +28,7 @@ class CategoriesScreen extends Component {
 
   fetchBrochures = async () => {
     try {
-      const response = await fetch('http://172.20.10.8:8080/api/brochure/getAll');
+      const response = await fetch('http://192.168.1.74:8080/api/brochure/getAll');
       const data = await response.json();
       this.setState({ brochures: data });
     } catch (error) {
