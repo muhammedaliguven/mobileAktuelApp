@@ -49,7 +49,7 @@ function BrochuresList({ navigation, route }) {
             onPress={() => navigation.navigate('BrochureDetail', { id: brochure.id })}
             style={styles.brochureItem}
           >
-            <Image source={{ uri: brochure.brochureImage }} style={styles.brochureImage} />
+            <Image source={{ uri: brochure.pdfUrl }} style={styles.brochureImage} />
             <Text style={styles.brochureText}>{brochure.description}</Text>
           </TouchableOpacity>
         ))}
