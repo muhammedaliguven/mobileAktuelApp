@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View, ActivityIndicator, StyleSheet, Image } from 'react-native';
 
 function Anasayfa({ navigation }) {
   const [categories, setCategories] = useState([]);
   const [marks, setMarks] = useState([]);
   const [filteredMarks, setFilteredMarks] = useState([]);
-  const [brochures, setBrochures] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedMark, setSelectedMark] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isBrochureLoading, setIsBrochureLoading] = useState(false);  // Broşürlerin yüklenme durumunu takip etmek için
 
   const fetchCategories = async () => {
     try {
       const response = await fetch('http://192.168.1.74:8080/api/category/getAll');
       const data = await response.json();
       setCategories(data);
-      setSelectedCategory(data[0]?.id); // İlk kategoriyi varsayılan olarak seçili yap
+      setSelectedCategory(data[0]?.id);
     } catch (error) {
       console.error("API'den kategori verisi çekme hatası: ", error);
     }
@@ -32,20 +29,6 @@ function Anasayfa({ navigation }) {
     }
   };
 
-  const fetchBrochures = async (markId) => {
-    setIsBrochureLoading(true);  // Broşürler yüklenmeye başlıyor
-    try {
-      const response = await fetch('http://192.168.1.74:8080/api/brochure/getAll');
-      const data = await response.json();
-      const filteredData = data.filter(brochure => brochure.markId === markId);
-      setBrochures(filteredData);
-    } catch (error) {
-      console.error("Broşürleri çekerken hata: ", error);
-    } finally {
-      setIsBrochureLoading(false);  // Yükleme tamamlandığında, durumu değiştir
-    }
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       await fetchCategories();
@@ -58,83 +41,61 @@ function Anasayfa({ navigation }) {
   useEffect(() => {
     if (selectedCategory) {
       const filtered = marks.filter((mark) => mark.categoryId === selectedCategory);
-      setFilteredMarks(filtered); // Filtrelenmiş markaları ayrı bir durumda sakla
-      setBrochures([]); // Kategori değiştiğinde broşür listesini sıfırla
-      setSelectedMark(null); // Kategori değiştiğinde seçili markayı sıfırla
+      setFilteredMarks(filtered);
     }
   }, [selectedCategory, marks]);
 
-  useEffect(() => {
-    if (selectedMark) {
-      fetchBrochures(selectedMark);
-    }
-  }, [selectedMark]);
-
   const handleMarkSelect = (markId) => {
-    if (isBrochureLoading) {
-      console.log("Broşürler henüz yüklenmedi. Lütfen bekleyin...");
-      return; // Eğer broşürler yükleniyorsa, markayı değiştirmeyi engelle
-    }
-
-    console.log('Marka seçildi:', markId);
-    if (selectedMark === markId) {
-      fetchBrochures(markId);
-    } else {
-      setSelectedMark(markId);
-      fetchBrochures(markId);
-    }
-
-    // Broşürleri logla ve navigasyona yönlendir
-    console.log('Broşürler:', brochures);
-    if (brochures.length > 0) {
-      navigation.navigate('BrochuresList', { brochures });
-    }
+    navigation.navigate('BrochuresList', { markId }); // Mark ID'yi gönder
   };
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
+    <View style={styles.container}>
       {isLoading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <>
-          {/* Kategoriler için yatay ScrollView */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 16 }}>
+          {/* Kategoriler */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
             {categories.map((category) => (
               <TouchableOpacity
                 key={category.id}
                 onPress={() => setSelectedCategory(category.id)}
-                style={{
-                  padding: 10,
-                  backgroundColor: selectedCategory === category.id ? 'blue' : 'gray',
-                  marginRight: 10,
-                  borderRadius: 5,
-                }}
+                style={[
+                  styles.categoryButton,
+                  selectedCategory === category.id && styles.categoryButtonSelected,
+                ]}
               >
-                <Text style={{ color: 'white' }}>{category.name}</Text>
+                <Image
+                  source={{ uri: category.iconUrl }}
+                  style={styles.categoryIcon}
+                />
+                <Text style={styles.categoryText}>{category.name}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          {/* Seçili kategoriye ait markalar */}
-          <ScrollView style={{ marginBottom: 16 }}>
+          {/* Dinamik Başlık */}
+          <Text style={styles.sectionTitle}>
+            {categories.find(cat => cat.id === selectedCategory)?.name || 'Seçili Kategori'}
+          </Text>
+
+          {/* Markalar */}
+          <ScrollView contentContainerStyle={styles.marksContainer}>
             {filteredMarks.map((mark) => (
               <TouchableOpacity
                 key={mark.id}
-                onPress={() => handleMarkSelect(mark.id)}
-                style={{
-                  padding: 10,
-                  backgroundColor: selectedMark === mark.id ? 'green' : 'lightgray',
-                  marginBottom: 10,
-                  borderRadius: 5,
-                }}
+                onPress={() => handleMarkSelect(mark.id)} // Mark ID'yi gönder
+                style={styles.markCard}
               >
-                <Text>{mark.name}</Text>
+                <Image
+                  source={{ uri: mark.logoUrl }}
+                  style={styles.markLogo}
+                />
+                <Text style={styles.markText}>{mark.name}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
-
-          {/* Broşürler yükleniyorsa gösterilecek spinner */}
-          {isBrochureLoading && <ActivityIndicator size="large" color="#0000ff" />}
         </>
       )}
     </View>
@@ -142,3 +103,72 @@ function Anasayfa({ navigation }) {
 }
 
 export default Anasayfa;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    padding: 16,
+  },
+  categoriesScroll: {
+    marginBottom: 16,
+    paddingVertical: 10,
+    backgroundColor: '#e9ecef',
+    borderRadius: 8,
+  },
+  categoryButton: {
+    width: 80,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e0e0e0',
+    marginRight: 10,
+    borderRadius: 40,
+  },
+  categoryButtonSelected: {
+    backgroundColor: '#007bff',
+  },
+  categoryIcon: {
+    width: 40,
+    height: 40,
+    marginBottom: 5,
+  },
+  categoryText: {
+    color: '#212529',
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#212529',
+    marginBottom: 10,
+  },
+  marksContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  markCard: {
+    width: '47%',
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    marginBottom: 15,
+    alignItems: 'center',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#dee2e6',
+  },
+  markLogo: {
+    width: 60,
+    height: 60,
+    marginBottom: 10,
+  },
+  markText: {
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
+    color: '#212529',
+  },
+});
