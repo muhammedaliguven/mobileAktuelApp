@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
 
 function BrochuresList({ navigation, route }) {
-  const { markId } = route.params;
+  const { markId, markImage } = route.params;
 
   const [brochures, setBrochures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -10,7 +18,9 @@ function BrochuresList({ navigation, route }) {
   useEffect(() => {
     const fetchBrochures = async () => {
       try {
-        const response = await fetch(`http://192.168.1.74:8080/api/brochure/getByMarkId/${markId}`);
+        const response = await fetch(
+          `http://192.168.1.74:8080/api/brochure/getByMarkId/${markId}`
+        );
         const data = await response.json();
         setBrochures(data);
       } catch (error) {
@@ -39,55 +49,73 @@ function BrochuresList({ navigation, route }) {
     );
   }
 
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.brochureItem}
+      onPress={() => navigation.navigate('BrochureDetail', { id: item.id })}
+    >
+      <Image
+        source={{ uri: `data:image/jpeg;base64,${markImage}` }}
+        style={styles.brochureImage}
+      />
+      <Text style={styles.brochureTitle}>{item.description}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Broşürler</Text>
-      <ScrollView>
-        {brochures.map((brochure) => (
-          <TouchableOpacity
-            key={brochure.id}
-            onPress={() => navigation.navigate('BrochureDetail', { id: brochure.id })}
-            style={styles.brochureItem}
-          >
-            <Image source={{ uri: brochure.pdfUrl }} style={styles.brochureImage} />
-            <Text style={styles.brochureText}>{brochure.description}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      <FlatList
+        data={brochures}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2} // Her satırda 2 eleman
+        columnWrapperStyle={styles.row} // Satır stili
+      />
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 10,
     backgroundColor: '#f8f9fa',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
+    textAlign: 'center',
+  },
+  row: {
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
   brochureItem: {
-    padding: 10,
-    backgroundColor: 'lightgray',
-    marginBottom: 10,
-    borderRadius: 5,
-    flexDirection: 'row',
+    flex: 1,
     alignItems: 'center',
+    backgroundColor: '#fff',
+    margin: 5,
+    padding: 10,
+    borderRadius: 8,
+    elevation: 2, // Android için gölge
+    shadowColor: '#000', // iOS için gölge
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
   },
   brochureImage: {
-    width: 50,
-    height: 50,
-    marginRight: 10,
-    borderRadius: 5,
+    width: 100,
+    height: 100,
+    resizeMode: 'contain', // Resmin tam görünmesi için
+    marginBottom: 10,
   },
-  brochureText: {
-    fontSize: 16,
-    color: '#333',
+  brochureTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
   },
 });
-export default BrochuresList;
 
+export default BrochuresList;

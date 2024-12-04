@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 
-class MarketsScreen extends Component {
+class Favorites extends Component {
   state = {
     marks: [],
     isLoading: true,
@@ -79,4 +79,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MarketsScreen;
+export default Favorites;

@@ -3,10 +3,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import MarketsScreen from './components/MarketsScreen';
+import Favorites from './components/Favorites';
 import CategoriesScreen from './components/CategoriesScreen';
-import SettingsScreen from './components/SettingsScreen';
-import AnasayfaTest from './components/Anasayfa';
+import Notifications from './components/Notifications';
+import Main from './components/Main';
 import BrochuresList from './components/BrouchureList';
 import BrochureDetail from './components/BrouchureDetail';
 // Tab bar oluşturma
@@ -35,10 +35,10 @@ function AppTabs() {
       tabBarInactiveTintColor: 'gray', // Pasif sekme rengi
     }}
   >
-    <Tab.Screen name="Marketler" component={MarketsScreen} />
-    <Tab.Screen name="Kategoriler" component={CategoriesScreen} />
-    <Tab.Screen name="Ayarlar" component={SettingsScreen} />
-    <Tab.Screen name="Anasayfa Test" component={AnasayfaTest} />
+    <Tab.Screen name="Categoriler" component={CategoriesScreen} />
+    <Tab.Screen name="Favoriler" component={Favorites} />
+    <Tab.Screen name="Bildirimler" component={Notifications} />
+    <Tab.Screen name="Anasayfa" component={Main} />
 
   </Tab.Navigator>
   );

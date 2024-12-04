@@ -2,9 +2,9 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-class SettingsScreen extends Component {
+class Notifications extends Component {
   state = {
-    settings: 'Burada ayarlarınızı yönetebilirsiniz.',
+    settings: 'Burada bildirimleri yönetebilirsiniz.',
   };
 
   render() {
@@ -29,4 +29,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SettingsScreen;
+export default Notifications;
