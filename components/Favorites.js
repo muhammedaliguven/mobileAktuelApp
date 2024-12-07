@@ -1,6 +1,7 @@
 // components/MarketsScreen.js
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import API_ENDPOINTS from '../config';
 
 class Favorites extends Component {
   state = {
@@ -10,7 +11,7 @@ class Favorites extends Component {
 
   fetchMarks = async () => {
     try {
-      const response = await fetch('http://192.168.1.74:8080/api/mark/getAll');
+      const response = await fetch(API_ENDPOINTS.getAllMarks);
       const data = await response.json();
       this.setState({ marks: data, isLoading: false });
     } catch (error) {

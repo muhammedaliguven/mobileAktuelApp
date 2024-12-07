@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://192.168.1.74:8080/api";
+const API_BASE_URL = "https://aktuelapi-production.up.railway.app/api";
 
 export const API_ENDPOINTS = {
   getAllCategories: `${API_BASE_URL}/category/getAll`,
