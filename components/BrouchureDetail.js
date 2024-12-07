@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet, Alert, Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as FileSystem from 'expo-file-system';
+import API_ENDPOINTS from '../config';
 
 function BrochureDetail({ route }) {
   const { id } = route.params;
@@ -13,7 +14,7 @@ function BrochureDetail({ route }) {
   useEffect(() => {
     const fetchAndSavePdf = async () => {
       try {
-        const response = await fetch(`http://192.168.1.74:8080/api/brochure/getById/${id}`);
+        const response = await fetch(API_ENDPOINTS.getBrochureById(id));
         if (!response.ok) {
           throw new Error('PDF verisi alınamadı');
         }

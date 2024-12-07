@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
+import API_ENDPOINTS from '../config';
 
 function Main({ navigation }) {
   const [categories, setCategories] = useState([]);
@@ -19,7 +20,7 @@ function Main({ navigation }) {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://192.168.1.74:8080/api/category/getAll');
+      const response = await fetch(API_ENDPOINTS.getAllCategories);
       const data = await response.json();
       setCategories(data);
       setSelectedCategory(data[0]?.id);
@@ -30,7 +31,7 @@ function Main({ navigation }) {
 
   const fetchMarks = async () => {
     try {
-      const response = await fetch('http://192.168.1.74:8080/api/mark/getAll');
+      const response = await fetch(API_ENDPOINTS.getAllMarks);
       const data = await response.json();
       setMarks(data);
     } catch (error) {

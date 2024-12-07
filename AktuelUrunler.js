@@ -4,7 +4,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import Favorites from './components/Favorites';
-import CategoriesScreen from './components/CategoriesScreen';
 import Notifications from './components/Notifications';
 import Main from './components/Main';
 import BrochuresList from './components/BrouchureList';
@@ -35,7 +34,6 @@ function AppTabs() {
       tabBarInactiveTintColor: 'gray', // Pasif sekme rengi
     }}
   >
-    <Tab.Screen name="Categoriler" component={CategoriesScreen} />
     <Tab.Screen name="Favoriler" component={Favorites} />
     <Tab.Screen name="Bildirimler" component={Notifications} />
     <Tab.Screen name="Anasayfa" component={Main} />

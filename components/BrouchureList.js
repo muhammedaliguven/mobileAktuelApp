@@ -8,6 +8,8 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
+import API_ENDPOINTS from '../config';
+
 
 function BrochuresList({ navigation, route }) {
   const { markId, markImage } = route.params;
@@ -18,9 +20,7 @@ function BrochuresList({ navigation, route }) {
   useEffect(() => {
     const fetchBrochures = async () => {
       try {
-        const response = await fetch(
-          `http://192.168.1.74:8080/api/brochure/getByMarkId/${markId}`
-        );
+        const response = await fetch(API_ENDPOINTS.getBrochuresByMarkId(markId));
         const data = await response.json();
         setBrochures(data);
       } catch (error) {
