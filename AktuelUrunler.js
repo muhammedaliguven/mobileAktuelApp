@@ -3,11 +3,11 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import Favorites from './components/Favorites';
-import Notifications from './components/Notifications';
+import ShoppingListScreen from './components/ShoppingListScreen';
 import Main from './components/Main';
 import BrochuresList from './components/BrouchureList';
 import BrochureDetail from './components/BrouchureDetail';
+
 // Tab bar oluşturma
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -34,9 +34,8 @@ function AppTabs() {
       tabBarInactiveTintColor: 'gray', // Pasif sekme rengi
     }}
   >
-    <Tab.Screen name="Favoriler" component={Favorites} />
-    <Tab.Screen name="Bildirimler" component={Notifications} />
     <Tab.Screen name="Anasayfa" component={Main} />
+    <Tab.Screen name="AlışverişListesi" component={ShoppingListScreen} />
 
   </Tab.Navigator>
   );
