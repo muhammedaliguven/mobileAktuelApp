@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
+import * as FileSystem from 'expo-file-system'; // FileSystem'i ekliyoruz
 import API_ENDPOINTS from '../config';
 
 function Main({ navigation }) {
@@ -18,24 +19,50 @@ function Main({ navigation }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 saat
+  const categoriesCacheUri = `${FileSystem.cacheDirectory}categories.json`; // Kategoriler için cache dosyası
+  const marksCacheUri = `${FileSystem.cacheDirectory}marks.json`; // Markalar için cache dosyası
+
   const fetchCategories = async () => {
     try {
-      const response = await fetch(API_ENDPOINTS.getAllCategories);
-      const data = await response.json();
-      setCategories(data);
-      setSelectedCategory(data[0]?.id);
+      const fileInfo = await FileSystem.getInfoAsync(categoriesCacheUri);
+
+      if (fileInfo.exists && new Date().getTime() - fileInfo.modificationTime * 1000 < CACHE_DURATION) {
+        // Cache'ten oku
+        const cachedData = await FileSystem.readAsStringAsync(categoriesCacheUri);
+        const parsedData = JSON.parse(cachedData);
+        setCategories(parsedData);
+        setSelectedCategory(parsedData[0]?.id); // İlk kategoriyi seç
+      } else {
+        // API çağrısı yap ve cache'e yaz
+        const response = await fetch(API_ENDPOINTS.getAllCategories);
+        const data = await response.json();
+        await FileSystem.writeAsStringAsync(categoriesCacheUri, JSON.stringify(data));
+        setCategories(data);
+        setSelectedCategory(data[0]?.id); // İlk kategoriyi seç
+      }
     } catch (error) {
-      console.error("API'den kategori verisi çekme hatası: ", error);
+      console.error("Kategoriler API veya cache hatası: ", error);
     }
   };
 
   const fetchMarks = async () => {
     try {
-      const response = await fetch(API_ENDPOINTS.getAllMarks);
-      const data = await response.json();
-      setMarks(data);
+      const fileInfo = await FileSystem.getInfoAsync(marksCacheUri);
+
+      if (fileInfo.exists && new Date().getTime() - fileInfo.modificationTime * 1000 < CACHE_DURATION) {
+        // Cache'ten oku
+        const cachedData = await FileSystem.readAsStringAsync(marksCacheUri);
+        setMarks(JSON.parse(cachedData));
+      } else {
+        // API çağrısı yap ve cache'e yaz
+        const response = await fetch(API_ENDPOINTS.getAllMarks);
+        const data = await response.json();
+        await FileSystem.writeAsStringAsync(marksCacheUri, JSON.stringify(data));
+        setMarks(data);
+      }
     } catch (error) {
-      console.error("API'den marka verisi çekme hatası: ", error);
+      console.error("Markalar API veya cache hatası: ", error);
     }
   };
 

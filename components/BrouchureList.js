@@ -8,8 +8,8 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
+import * as FileSystem from 'expo-file-system'; // FileSystem'i ekliyoruz
 import API_ENDPOINTS from '../config';
-
 
 function BrochuresList({ navigation, route }) {
   const { markId, markImage } = route.params;
@@ -17,20 +17,39 @@ function BrochuresList({ navigation, route }) {
   const [brochures, setBrochures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 saat
+  const cacheFileUri = `${FileSystem.cacheDirectory}brochures_${markId}.json`; // Her markId için ayrı cache dosyası
+
   useEffect(() => {
-    const fetchBrochures = async () => {
+    const fetchAndCacheBrochures = async () => {
       try {
-        const response = await fetch(API_ENDPOINTS.getBrochuresByMarkId(markId));
-        const data = await response.json();
-        setBrochures(data);
+        const fileInfo = await FileSystem.getInfoAsync(cacheFileUri);
+
+        // Cache kontrolü
+        if (fileInfo.exists && new Date().getTime() - fileInfo.modificationTime * 1000 < CACHE_DURATION) {
+          console.log("Cache'ten yükleniyor...");
+          const cachedData = await FileSystem.readAsStringAsync(cacheFileUri);
+          setBrochures(JSON.parse(cachedData));
+        } else {
+          console.log("Cache yok veya süresi dolmuş. API çağrısı yapılıyor...");
+          const response = await fetch(API_ENDPOINTS.getBrochuresByMarkId(markId));
+          if (!response.ok) throw new Error("API çağrısı başarısız.");
+
+          const responseData = await response.json();
+
+          // Cache'e kaydet
+          await FileSystem.writeAsStringAsync(cacheFileUri, JSON.stringify(responseData));
+          console.log("API yanıtı cache'e kaydedildi.");
+          setBrochures(responseData);
+        }
       } catch (error) {
-        console.error("API'den broşür verisi çekme hatası: ", error);
+        console.error("API veya cache işlemi sırasında hata oluştu: ", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchBrochures();
+    fetchAndCacheBrochures();
   }, [markId]);
 
   if (isLoading) {

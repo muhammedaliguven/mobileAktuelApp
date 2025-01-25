@@ -11,30 +11,44 @@ function BrochureDetail({ route }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchAndSavePdf = async () => {
-      try {
+  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 saat
+  const cacheFileUri = `${FileSystem.cacheDirectory}brochure_response_${id}.json`; // ID bazlı cache
+
+  const fetchAndCacheResponse = async () => {
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(cacheFileUri);
+      // Cache kontrolü
+      if (fileInfo.exists && new Date().getTime() - fileInfo.modificationTime* 1000 < CACHE_DURATION) {
+        const cachedData = await FileSystem.readAsStringAsync(cacheFileUri);
+        handlePdfData(JSON.parse(cachedData));
+      } else {
+        // API'den veri çek ve cache'e kaydet
         const response = await fetch(API_ENDPOINTS.getBrochureById(id));
-        if (!response.ok) {
-          throw new Error('PDF verisi alınamadı');
-        }
-        const data = await response.json();
+        if (!response.ok) throw new Error("API çağrısı başarısız.");
 
-        if (data.pdfData) {
-          const localUri = `${FileSystem.cacheDirectory}brochure_${id}.pdf`;
-          await FileSystem.writeAsStringAsync(localUri, data.pdfData, { encoding: FileSystem.EncodingType.Base64 });
-          setPdfUri(localUri);
-        } else {
-          throw new Error('PDF verisi mevcut değil');
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        const responseData = await response.json();
+        await FileSystem.writeAsStringAsync(cacheFileUri, JSON.stringify(responseData)); // Cache'e yaz
+        handlePdfData(responseData);
       }
-    };
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchAndSavePdf();
+  const handlePdfData = async (data) => {
+    if (data.pdfData) {
+      const pdfFileUri = `${FileSystem.cacheDirectory}brochure_${id}.pdf`;
+      await FileSystem.writeAsStringAsync(pdfFileUri, data.pdfData, { encoding: FileSystem.EncodingType.Base64 });
+      setPdfUri(pdfFileUri);
+    } else {
+      throw new Error("PDF verisi mevcut değil.");
+    }
+  };
+
+  useEffect(() => {
+    fetchAndCacheResponse();
   }, [id]);
 
   if (loading) {
@@ -64,13 +78,10 @@ function BrochureDetail({ route }) {
   return (
     <View style={styles.container}>
       <WebView
-        originWhitelist={['*']} // File URI'lere izin ver
+        originWhitelist={['*']}
         source={{ uri: pdfUri }}
         style={styles.webView}
-        onError={(error) => {
-          Alert.alert('Hata', 'PDF görüntülenemedi');
-          console.error(error);
-        }}
+        onError={() => Alert.alert("Hata", "PDF görüntülenemedi")}
       />
     </View>
   );
