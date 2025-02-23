@@ -9,6 +9,7 @@ import Main from './components/Main';
 import Favorites from './components/Favorites';
 import BrochuresList from './components/BrouchureList';
 import BrochureDetail from './components/BrouchureDetail';
+import { FavoritesProvider } from './FavoritesContext'; // Dosya yolunu düzenleyin
 
 // Tab bar oluşturma
 const Tab = createBottomTabNavigator();
@@ -45,9 +46,11 @@ function AppTabs() {
 
 export default function App() {
   return (
+    <FavoritesProvider>
     <NavigationContainer>
         <AppNavigator />
       </NavigationContainer>
+      </FavoritesProvider>
   );
 }
 

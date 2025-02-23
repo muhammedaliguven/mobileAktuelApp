@@ -26,13 +26,12 @@ function BrochuresList({ navigation, route }) {
         const fileInfo = await FileSystem.getInfoAsync(cacheFileUri);
 
         // Cache kontrolü
-        if (fileInfo.exists && new Date().getTime() - fileInfo.modificationTime * 1000 < CACHE_DURATION) {
+        if (fileInfo.exists && new Date().getTime() - fileInfo.modificationTime * 1000 < CACHE_DURATION ) {
           console.log("Cache'ten yükleniyor...");
           const cachedData = await FileSystem.readAsStringAsync(cacheFileUri);
           setBrochures(JSON.parse(cachedData));
         } else {
-          console.log("Cache yok veya süresi dolmuş. API çağrısı yapılıyor...");
-          const response = await fetch(API_ENDPOINTS.getBrochuresByMarkId(markId));
+          const response = await fetch(API_ENDPOINTS.getSummaryBrochureByMarkId(markId));
           if (!response.ok) throw new Error("API çağrısı başarısız.");
 
           const responseData = await response.json();
